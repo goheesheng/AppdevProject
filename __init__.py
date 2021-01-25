@@ -32,11 +32,16 @@ mail = Mail(app)
 def home():
     users_dict = {}
     name =''
+    # if 'logged_in' in session:
+
+    # id = session['current_user']
+    # details = users_dict[id]
+    # name = details.get_first_name()
     #undo bottom 2 lines, may need for setting customer_list, admin function to home
     # id = session['current_user']
     # print(f'{id} 123 123')
 
-    if session["logged_in"] == True and session['Head_Admin'] == False:
+    if session["logged_in"] == True and session['Head_Admin'] == False: # and details.get_check_admin() == True
         try:
             db = shelve.open('storage.db', 'r')
             users_dict = db['Users']
@@ -44,15 +49,38 @@ def home():
         except:
             print("Error in retrieving Users from storage.db.")
         current_user = users_dict[session['current_user']] #retrieve key
-        name = current_user.get_first_name()
-        return render_template('home.html',currentuser=name)
-    if session["logged_in"] == True and session['Head_Admin'] == True:
+        if current_user.get_check_admin() == True:
+            session['admin'] = True
+        if 'admin' in session and session['admin']:
+
+            flash("Login Successful!")
+            details = session['admin']
+
+            current_user = users_dict[session['current_user']] #retrieve key
+            name = current_user.get_first_name()
+            print('session admin =', session['admin'])
+            print('check', current_user.get_check_admin())
+            return render_template('home.html',currentuser=name,user = details,check_admin = details)
+        else:
+            try:
+                db = shelve.open('storage.db', 'r')
+                users_dict = db['Users']
+                db.close()
+            except:
+                print("Error in retrieving Users from storage.db.")
+            flash("Login Successful!")
+            session['admin'] = False
+            current_user = users_dict[session['current_user']] #retrieve key
+            name = current_user.get_first_name()
+            return render_template('home.html',currentuser=name)
+    elif session["logged_in"] == True and session['Head_Admin'] == True:
         id = session['current_user']
         return render_template('home.html', currentuser = id )#to retrieve to html & display out (jinja code thing)
+    return render_template('home.html')
     #how to set this customer_list to home?
     # details = users_dict[id]
     # name = details.get_first_name()
-    #
+    #check if
     # if session['Head_Admin'] == False and details.get_check_admin() == True:
     #     get_key = users_dict[session['current_user']] # retrieve object from session['current_user'] which is a key
     #     return render_template('home.html',currentuser = name,user = details,check_admin = details.get_check_admin()) #to retrieve to html & display out (jinja code thing)
@@ -60,7 +88,6 @@ def home():
     #     return render_template('home.html',currentuser = name,user = details)
     #
 
-    return render_template('home.html')
 
 
 
@@ -166,7 +193,7 @@ def add_admin():
 def log_out():
     session['current_user'] = None
     session['Head_Admin'] = None
-    # session['admin'] = None
+    session['admin'] = False
     session['logged_in'] = False
     return redirect(url_for('home'))
 
@@ -200,9 +227,12 @@ def login_page():
 
         #Retrieve the users_dict object from shelve using the 'Users' key.
         users_dict = {}
-        db = shelve.open('storage.db', 'r')
-        users_dict = db['Users']
-        db.close()
+        try:
+            db = shelve.open('storage.db', 'r')
+            users_dict = db['Users']
+            db.close()
+        except:
+            print("Error retrieving user from storage.db")
 
         for key,value in users_dict.items(): #value is object
             password = value.get_password()
@@ -363,27 +393,50 @@ def update_user(nric):
     #to retrieve data from shelve and diplay previous data
     #so bascially this will come first as admin did not click update thus post doesnt work first
     elif request.method == 'POST' and update_user_form.validate() and session['Head_Admin'] == False: #customer side
-        users_dict = {}
-        db = shelve.open('storage.db', 'w')
-        users_dict = db['Users']
+        if session['admin']:
+            users_dict = {}
+            db = shelve.open('storage.db', 'w')
+            users_dict = db['Users']
 
-        user = users_dict.get(nric)
-        user.set_first_name(update_user_form.first_name.data)
-        user.set_last_name(update_user_form.last_name.data)
-        user.set_race(update_user_form.race.data)
-        user.set_phone_no(update_user_form.phone_no.data)
-        user.set_email(update_user_form.email.data)
-        user.set_gender(update_user_form.gender.data)
-        user.set_password(update_user_form.password.data)
-        user.set_address_1(update_user_form.address_1.data)
-        user.set_address_2(update_user_form.address_2.data)
-        user.set_postal_code(update_user_form.postal_code.data)
+            user = users_dict.get(nric)
+            user.set_first_name(update_user_form.first_name.data)
+            user.set_last_name(update_user_form.last_name.data)
+            user.set_race(update_user_form.race.data)
+            user.set_phone_no(update_user_form.phone_no.data)
+            user.set_email(update_user_form.email.data)
+            user.set_gender(update_user_form.gender.data)
+            user.set_password(update_user_form.password.data)
+            user.set_address_1(update_user_form.address_1.data)
+            user.set_address_2(update_user_form.address_2.data)
+            user.set_postal_code(update_user_form.postal_code.data)
 
-        db['Users'] = users_dict
-        db.close()
-        session['user_updated'] = user.get_first_name() + ' ' + user.get_last_name()
+            db['Users'] = users_dict
+            db.close()
+            session['user_updated'] = user.get_first_name() + ' ' + user.get_last_name()
 
-        return redirect(url_for('customerDetail'))
+            return redirect(url_for('retrieve_users'))
+        elif session['admin'] == False :
+            users_dict = {}
+            db = shelve.open('storage.db', 'w')
+            users_dict = db['Users']
+
+            user = users_dict.get(nric)
+            user.set_first_name(update_user_form.first_name.data)
+            user.set_last_name(update_user_form.last_name.data)
+            user.set_race(update_user_form.race.data)
+            user.set_phone_no(update_user_form.phone_no.data)
+            user.set_email(update_user_form.email.data)
+            user.set_gender(update_user_form.gender.data)
+            user.set_password(update_user_form.password.data)
+            user.set_address_1(update_user_form.address_1.data)
+            user.set_address_2(update_user_form.address_2.data)
+            user.set_postal_code(update_user_form.postal_code.data)
+
+            db['Users'] = users_dict
+            db.close()
+            session['user_updated'] = user.get_first_name() + ' ' + user.get_last_name()
+
+            return redirect(url_for('customerDetail'))
 
     elif request.method == 'GET' and session['Head_Admin'] == False: #get method
         users_dict = {}
@@ -402,6 +455,7 @@ def update_user(nric):
         update_user_form.address_1.data = user.get_address_1()
         update_user_form.address_2.data = user.get_address_2()
         update_user_form.postal_code.data = user.get_postal_code()
+
     elif request.method == 'GET' and session['Head_Admin'] == True: #get method
         users_dict = {}
         db = shelve.open('storage.db', 'r')
@@ -421,16 +475,20 @@ def update_user(nric):
         update_user_form.postal_code.data = user.get_postal_code()
         update_user_form.become_admin.data = user.get_check_admin()
     users_dict = {}
-    db = shelve.open('storage.db', 'r')
-    users_dict = db['Users']
-    db.close()
-
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print("Error retrieving user")
     user = users_dict.get(nric)
     print(user.get_check_admin()) #check
     if user.get_check_admin() == True:
         user.set_check_admin(True)
+
     elif user.get_check_admin() == False:
         user.set_check_admin(False)
+
     if session['Head_Admin'] == True:
         users_dict = {}
         db = shelve.open('storage.db', 'r')
@@ -441,6 +499,7 @@ def update_user(nric):
         id = session['current_user']                                       # = nric also can
         return render_template('updateUser.html', form=update_user_form, currentuser = id, nric = user.get_nric())
     elif user.get_check_admin() == True:
+
         users_dict = {}
         db = shelve.open('storage.db', 'r')
         users_dict = db['Users']
@@ -510,4 +569,4 @@ def delete_user(nric):
 if __name__ == '__main__':
     add_admin()
     otp = token()
-    app.run(debug = False) #run twice cuz debug built in system bla bla bla
+    app.run(debug = True) #run twice cuz debug built in system bla bla bla

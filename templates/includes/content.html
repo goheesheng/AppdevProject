@@ -110,3 +110,8 @@
 </body>
 
 {% endblock %}
+
+<!--need to set as nothing as at the base.html, you include content.html then at the bottom  you called the script again
+  thus having 2 sets of scripts, so you clear the script here-->
+{% block scripts %}
+{% endblock %}
