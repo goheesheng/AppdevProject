@@ -1,11 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from Forms import CreateUserForm
+from Forms2 import CreateTicketForm
+from FBForms import CreateFeedbackForm
 from Login import LoginForm
 from User import User
 from PWReset import PWReset, PWConfirm
 from AdminUpdateForm import Admin_UpdateUserForm
 from flask_mail import Mail, Message
-import shelve, pyotp, time, hashlib
+import shelve, pyotp, time, hashlib,Ticket, Feedback
 import os
 
 
@@ -566,6 +568,152 @@ def delete_user(nric):
         session['user_deleted'] = user.get_first_name() + ' ' + user.get_last_name()
 
         return redirect(url_for('log_out'))
+
+@app.route('/createTicket', methods=['GET', 'POST'])
+def create_ticket():
+    create_ticket_form = CreateTicketForm(request.form)
+    if request.method == 'POST' and create_ticket_form.validate() and session['logged_in'] == True:
+        tickets_dict = {}
+        tickets_count_id = 0
+        db = shelve.open('storage.db', 'c')
+
+        try:
+            tickets_dict = db['Tickets']
+            tickets_count_id = int(db['tickets_count_id'])
+        except:
+            print("Error in retrieving Inventories from storage.db.")
+
+        ticket = Ticket.Ticket(create_ticket_form.name.data, create_ticket_form.category.data,
+                               create_ticket_form.subject.data, create_ticket_form.message.data)
+
+        tickets_count_id += 1
+        ticket.set_ticket_id(tickets_count_id)
+        db['tickets_count_id'] = tickets_count_id
+        tickets_dict[ticket.get_ticket_id()] = ticket
+        db['Tickets'] = tickets_dict
+
+        db.close()
+
+        session['ticket_created'] = ticket.get_name()
+
+        return redirect(url_for('retrieve_tickets'))
+
+    elif session['logged_in'] == False:
+        flash('Please Login First')
+        return redirect(url_for('login_page'))
+
+    db = shelve.open('storage.db', 'r')
+    users_dict = db['Users']
+    db.close()
+    id = session['current_user']
+    details = users_dict[id]
+    name = details.get_first_name()
+
+    return render_template('create.html', form=create_ticket_form, currentuser = name )
+
+
+@app.route('/retrieveTickets')
+def retrieve_tickets():
+    tickets_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        tickets_dict = db['Tickets']
+        db.close()
+    except:
+        print('Error in retrieving ticket from storage.db')
+
+    tickets_list = []
+    for key in tickets_dict:
+        ticket = tickets_dict.get(key)
+        tickets_list.append(ticket)
+
+    flash('New ticket has been created')
+    if session['logged_in'] and session['Head_Admin'] == True:
+        id = session['current_user'] #id = 'admin'
+        return render_template('retrieve.html', count=len(tickets_list), tickets_list=tickets_list, currentuser = id)
+    user_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print('Error retrieving tickes')
+
+    id = session['current_user']
+    details = users_dict[id]
+    name = details.get_first_name()
+
+
+    return render_template('retrieve.html', count=len(tickets_list), tickets_list=tickets_list, currentuser = name)
+
+
+@app.route('/viewTicket')
+def view_ticket():
+    tickets_dict = {}
+    db = shelve.open('storage.db', 'r')
+    tickets_dict = db['Tickets']
+
+    db.close()
+
+    tickets_list = []
+    for key in tickets_dict:
+        ticket = tickets_dict.get(key)
+        tickets_list.append(ticket)
+
+    if session['logged_in'] and session['Head_Admin'] == True:
+        id = session['current_user'] #id = 'admin'
+        return render_template('view.html', count=len(tickets_list), tickets_list=tickets_list, currentuser = id)
+
+    user_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print('Error retrieving tickes')
+
+    id = session['current_user']
+    details = users_dict[id]
+    name = details.get_first_name()
+
+    return render_template('view.html', count=len(tickets_list), tickets_list=tickets_list, currentuser = name)
+
+
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    create_feedback_form = CreateFeedbackForm(request.form)
+    if request.method == 'POST' and create_feedback_form.validate():
+        feedbacks_dict = {}
+        db = shelve.open('storage.db', 'c')
+
+        try:
+            feedbacks_dict = db['Feedbacks']
+        except:
+            print('Error in retrieving feedback from storage.db')
+
+        feedback = Feedback.Feedback(create_feedback_form.thoughts.data,
+                                     create_feedback_form.reason.data,
+                                     create_feedback_form.suggestions.data)
+        feedbacks_dict[feedback.get_feedback_id] = feedback
+        db['Feedbacks'] = feedbacks_dict
+
+    user_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print('Error retrieving tickes')
+
+    id = session['current_user']
+    details = users_dict[id]
+    name = details.get_first_name()
+
+    return render_template('feedback.html', form=create_feedback_form, currentuser = name)
+
+
+
+
 if __name__ == '__main__':
     add_admin()
     otp = token()

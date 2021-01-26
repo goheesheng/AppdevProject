@@ -14,8 +14,15 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg " href="/retrieveUsers">{{currentuser}}</a>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg "
+                                        href="/retrieveUsers">{{currentuser}}</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-info btn-lg ml-1 pr-3" href="/logout">Log
                     out</a></li>
@@ -38,9 +45,18 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg " href="/retrieveUsers">Customer Lists</a>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg ml-1 pr-3" href="/customerDetail">{{currentuser}}</a>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
+                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg " href="/retrieveUsers">Customer
+                    Lists</a>
+                <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg ml-1 pr-3"
+                                        href="/customerDetail">{{currentuser}}</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-info btn-lg ml-1 pr-3" href="/logout">Log
                     out</a></li>
@@ -64,7 +80,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-success btn-lg "
                                         href="/customerDetail">{{currentuser}}</a></li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-info btn-lg ml-1 pr-3" href="/logout">Log
@@ -80,7 +103,7 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-primary fixed-top py-3" id="mainNav">
     <div class="container">
         <a class="navbar-brand " href="/"><img src="{{url_for('static',filename='assets/img/Logo.png')}}" width="30"
-                                                   height="30" alt="Company Logo">Angel</a>
+                                               height="30" alt="Company Logo">Angel</a>
         <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false"
                 aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
@@ -91,7 +114,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg "
                                         href="/login">Login</a></li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-info btn-lg ml-1 pr-3"

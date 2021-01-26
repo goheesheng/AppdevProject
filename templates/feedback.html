@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Feedback{% endblock %}
+
+{% block content %}
+{% from "includes/_formHelper.html" import render_field %}
+<div class="container">
+    <!-- Content here -->
+    <style>
+        body {
+          margin-top: 83px;
+        }
+
+
+
+    </style>
+
+    <h1>Feedback</h1>
+
+    <form action="{{url_for('feedback')}}" method="POST">
+        <div class="form-group">
+            {{ render_field(form.thoughts, class="form-check", style="list-style-type:none") }}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.reason, class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ render_field(form.suggestions, class="form-control") }}
+        </div>
+<!--        <input type="submit" value="Submit" class="btn btn-primary"/>-->
+        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+            Submit
+        </button>
+
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Thank You!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <p>Your response had been successfully submitted.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="/createTicket" class="btn btn-warning" role="button" aria-disabled="true">Create
+                            Ticket</a>
+                        <a href="/home" class="btn btn-primary" role="button" aria-disabled="true">Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endblock %}
+</div>
