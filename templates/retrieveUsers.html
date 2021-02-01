@@ -1,3 +1,5 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 {% extends "base.html" %}
 {% block title %}Library Loan System - Retrieve Users{% endblock %}
 
@@ -6,6 +8,14 @@
         body {
           margin-top: 100px;
         }
+
+        #scroll {
+            width:auto;
+            overflow-y:scroll;
+            position:relative;
+            height: 600px;
+            }
+
     </style>
 {% for msg in get_flashed_messages() %}
 <div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
@@ -36,7 +46,7 @@
     {% endif %}
 </div>
 
-<div>
+<div id = 'scroll'>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -48,18 +58,18 @@
             <th>Phone Number</th>
             <th>Email</th>
             <th>Gender</th>
-            <th>Password</th>
             <th>Address 1</th>
             <th>Address 2</th>
             <th>Postal Code</th>
 
         </tr>
         </thead>
-        <tbody>
+        <input class="form-control" id="myInput" type="text" placeholder="Search..">
+        <tbody id="myTable">
         <!-- print all the data here       -->
         {% for user in users_list %}
         <tr>
-            <td>{{ user.get_row_id() }}</td>
+            <td>{{ user.get_row_id() }})</td>
             <td>{{ user.get_first_name() }}</td>
             <td>{{ user.get_last_name() }}</td>
             <td>{{ user.get_nric() }}</td>
@@ -79,7 +89,6 @@
             {% elif user.get_gender() == "M" %}
             <td>Male</td>
             {% endif %}
-            <td>{{ user.get_password() }}</td>
             <td>{{ user.get_address_1() }}</td>
             <td>{{ user.get_address_2() }}</td>
             <td>{{ user.get_postal_code() }}</td>
@@ -128,5 +137,16 @@
     </table>
 </div>
 
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+</script>
 
 {% endblock %}

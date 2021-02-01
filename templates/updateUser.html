@@ -9,6 +9,7 @@
           padding-top: 100px;
         }
 
+
 </style>
 
 {% from "includes/_formHelper.html" import render_field %}
@@ -39,8 +40,13 @@
     <div class="form-group">
         {{ render_field(form.gender, class="form-control") }}
     </div>
+
     <div class="form-group">
+
         {{ render_field(form.password, class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ render_field(form.confirm_password, class="form-control") }}
     </div>
     <div class="form-group">
         {{ render_field(form.address_1, class="form-control") }}
