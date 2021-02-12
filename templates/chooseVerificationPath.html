@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Create User{% endblock %}
+
+{% block content %}
+{% for msg in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+{% endfor %}
+    <style>
+        body {
+          padding-top: 160px;
+        }
+
+    </style>
+{% from "includes/_formHelper.html" import render_field %}
+
+<h1 class="display-4">Choose Login Path: Email or Phone otp</h1> <!-- Display 1 - >4 are the size of fonts, 1 is the biggest -->
+
+
+<a class=" btn btn-info btn-lg ml-1 pr-3" href="/chooseVerificationPath/PhoneLoginVerifyCode/{{ nric }}">Phone Verification Code</a>
+<a class="btn btn-info btn-lg ml-1 pr-3" href="/chooseVerificationPath/EmailLoginVerifyCode/{{ nric }}">Email Verification Code</a>
+{% endblock %}

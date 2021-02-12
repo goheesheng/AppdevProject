@@ -2,25 +2,25 @@
 {% block title %}Library Loan System - Create User{% endblock %}
 
 
+
+
 {% block content %}
     <style>
         body {
           margin-top: 100px;
         }
     </style>
-
 {% for msg in get_flashed_messages() %}
 <div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
     <button type="button" class="close" data-dismiss="alert">&times;</button>
 </div>
 {% endfor %}
 
-{% from "includes/_formHelper.html" import render_field %}
+    <h1>Two Factor Authentication Setup</h1>
+    <p>You are almost done! Please start FreeOTP on your smartphone and scan the following QR Code with it:</p>
+    <p><img id="qrcode" src="{{ url_for('qrcode') }}"></p>
+    <p>I'm done, take me to the <a class="btn btn-warning btn-lg " href="{{ url_for('login_page') }}">Login </a> page!</p>
 
-<form method="POST" action="">
-  <div class="form-group">
-    {{ render_field(form.email_validCode, class="form-control") }}
-  </div>
-  <input type ='submit' name = 'enter-verification-code'value='Enter verification code' class="'btn btn-primary">
-</form>
 {% endblock %}
+
+

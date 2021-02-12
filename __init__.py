@@ -1,13 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory, \
+    abort
 from Forms import CreateUserForm
-from Login import LoginForm
+from Login import LoginForm,LoginVerify,LoginEmailVerify
 from User import User
 from PWReset import PWReset, PWConfirm
 from AdminUpdateForm import Admin_UpdateUserForm
 from flask_mail import Mail, Message
-import shelve, pyotp
-import os
-
+import shelve, pyotp, onetimepass,pyqrcode
+import os,base64
+from io import BytesIO
+from json import JSONEncoder
 
 # print(os.urandom(24)) generated for line btm 3rd line
 app = Flask(__name__)
@@ -32,6 +34,53 @@ app.config.update(
 
 mail = Mail(app)
 
+@app.route('/twofactor')
+def two_factor_setup():
+    if 'current_user' not in session:
+        return redirect(url_for('home'))
+    # user = User.query.filter_by(username=session['username']).first()
+
+    user = session['current_user']
+
+    print(user,'12333333333333333333333333333333333333333')
+    if user is None:
+        return redirect(url_for('home'))
+    # since this page contains the sensitive qrcode, make sure the browser
+    # does not cache it
+    return render_template('two-factor-setup.html'), 200, {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
+
+
+@app.route('/qrcode')
+def qrcode():
+    users_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print("Error in retrieving Users from storage.db.")
+    if 'current_user' not in session:
+        abort(404)
+    user = users_dict[session['current_user']]
+    print(user,'an object')
+    if user is None:
+        abort(404)
+
+    # for added security, remove username from session
+    del session['current_user']
+
+    # render qrcode for FreeTOTP
+    url = pyqrcode.create(user.get_totp_uri())
+    stream = BytesIO()
+    url.svg(stream, scale=3)
+    return stream.getvalue(), 200, {
+        'Content-Type': 'image/svg+xml',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'}
 
 @app.route('/home')  # requesting from get method
 def home():
@@ -230,8 +279,9 @@ def create_user():
 
             db.close()
             session['user_created'] = user.get_first_name() + ' ' + user.get_last_name()
+            session['current_user'] = create_user_form.nric.data
             session['logged_in'] = False
-            return redirect(url_for('home'))# no need retrieve_users.html as have url_for()
+            return redirect(url_for('two_factor_setup'))#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~need redirect to twofactor
     return render_template('createUser.html', form=create_user_form)
 
 #add head admin
@@ -294,8 +344,65 @@ def log_out():
     session['logged_in'] = False
     session['profile_pic'] = False
     return redirect(url_for('home'))
+@app.route('/chooseVerificationPath//EmailLoginVerifyCode/<string:nric>', methods=["GET","POST"])
+def EmailLoginVerifyCode(nric):
+    email_verify_form = LoginEmailVerify(request.form)
+    users_dict = {}
+    email_data = [] #email = [0],first_name = [1]
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print("Error retrieving user from storage.db")
+    session['logged_in'] = False
+    user = users_dict[nric]
+    email = user.get_email()
+    first_name = user.get_first_name()
+    email_data.append(email)
+    email_data.append(first_name)
+    msg = Message('Login Confirmation',sender = 'appdevescip2003@gmail.com', recipients = [email_data[0]]) #need put anther square bracket as will have string concatenation error
+    msg.html = render_template('email.html', postID='login verify', first_name = email_data[1],token = otp)
+    mail.send(msg)
+    print(email_data[0])
+    print('Sent successful!')
+    if request.method == 'POST' and email_verify_form.validate():
+        print('test sent')
+        if email_verify_form.email_validCode.data == otp:
+            session['logged_in'] = True
+            return redirect(url_for('home')) #this nric returns to userChangePW approute<string:nric>
+        else:
+            flash("Invalid verification code")
+    return render_template('EmailLoginVerifyCode.html', form = email_verify_form)
 
 
+
+@app.route('/chooseVerificationPath/PhoneLoginVerifyCode/<string:nric>', methods=["GET","POST"])
+def PhoneVerificationPath(nric):
+    phone_verify_form = LoginVerify(request.form)
+    users_dict = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+        users_dict = db['Users']
+        db.close()
+    except:
+        print("Error retrieving user from storage.db")
+    if request.method == 'POST' and phone_verify_form.validate():
+            print(nric,'key1231289378912879312789321789123897312987312')
+            key = users_dict[nric]
+            if key.verify_totp(phone_verify_form.phone_token.data): #It means you're trying to convert something to JSON that python doesn't know how to convert to JSON
+                print('phone otp verified')
+                print(key.verify_totp(phone_verify_form.phone_token.data))
+                session['logged_in'] = True
+                session['current_user'] = nric #show name on navbar #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~MUST NOT STORE SESSION AS OBJECT, if not got Typeerror: Object of type User is not JSON serializable
+                session['Head_Admin'] = False # To ensure this account isn't admin
+                return redirect(url_for("home"))
+            print('wrong otp')
+    return render_template('PhoneLoginVerifyCode.html', form = phone_verify_form)
+
+@app.route('/chooseVerificationPath/<string:nric>', methods=["GET","POST"])
+def chooseVerificationPath(nric):
+    return render_template('chooseVerificationPath.html', nric = nric) #always need return out so other page can use
 
 @app.route('/login', methods=["GET","POST"])
 def login_page():
@@ -340,18 +447,11 @@ def login_page():
             print(password)
                                                 #cannot password == value.verify_password(str(login_form.password.data)) as it is a boolean thus always not the same, so just check True or Not
             if login_form.nric.data == key and value.verify_password(str(login_form.password.data)): #cannot this method
-                session['logged_in'] = True
+                session['logged_in'] = False
                 session['current_user'] = key #show name on navbar
                 session['Head_Admin'] = False # To ensure this account isn't admin
 
-                email_data.append(email)
-                email_data.append(first_name)
-                msg = Message('Login Confirmation',sender = 'appdevescip2003@gmail.com', recipients = [email_data[0]]) #need put anther square bracket as will have string concatenation error
-                msg.html = render_template('email.html', postID='login verify', first_name = email_data[1],token = otp)
-                mail.send(msg)
-                print('Sent successful!')
-
-                return redirect(url_for('login_verify_code', nric = login_form.nric.data))# no need retrieve_users.html as have url_for(), nric is for the app route <string:nric>
+                return redirect(url_for('chooseVerificationPath', nric = login_form.nric.data))# no need retrieve_users.html as have url_for(), nric is for the app route <string:nric>
         else:
             print("Incorrect username and/or password")
             flash('Incorrect username and/or password', 'info')
@@ -370,61 +470,7 @@ def token():
     print('OTP code:', totp.now())
     return totp.now()
 
-# @app.route('/twofactor')
-# def two_factor_setup():
-#     if 'username' not in session:
-#         return redirect(url_for('index'))
-#     user = User.query.filter_by(username=session['username']).first()
-#     if user is None:
-#         return redirect(url_for('index'))
-#     # since this page contains the sensitive qrcode, make sure the browser
-#     # does not cache it
-#     return render_template('two-factor-setup.html'), 200, {
-#         'Cache-Control': 'no-cache, no-store, must-revalidate',
-#         'Pragma': 'no-cache',
-#         'Expires': '0'}
-#
-#
-# @app.route('/qrcode')
-# def qrcode():
-#     if 'username' not in session:
-#         abort(404)
-#     user = User.query.filter_by(username=session['username']).first()
-#     if user is None:
-#         abort(404)
-#
-#     # for added security, remove username from session
-#     del session['username']
-#
-#     # render qrcode for FreeTOTP
-#     url = pyqrcode.create(user.get_totp_uri())
-#     stream = BytesIO()
-#     url.svg(stream, scale=3)
-#     return stream.getvalue(), 200, {
-#         'Content-Type': 'image/svg+xml',
-#         'Cache-Control': 'no-cache, no-store, must-revalidate',
-#         'Pragma': 'no-cache',
-#         'Expires': '0'}
-        # removed <string:nric> then can work, why?
 
-@app.route('/loginVerifyCode/<string:nric>', methods=["GET","POST"])
-def login_verify_code(nric):
-    reset_form = PWReset(request.form)
-    db = shelve.open('storage.db', 'r')
-    users_dict = db['Users']
-    db.close()
-    session['logged_in'] = False
-
-    if request.method == 'POST' and 'enter-verification-code' in request.form and reset_form.validate:
-        if reset_form.validCode.data == otp:
-            session['logged_in'] = True
-            for key in users_dict:
-                if users_dict[key].get_nric() == nric:
-                    nric = key
-                    return redirect(url_for('home')) #this nric returns to userChangePW approute<string:nric>
-        else:
-            flash("Invalid verification code")
-    return render_template('loginVerifyCode.html', form=reset_form)
 
 @app.route('/verifyCode/<string:email>', methods=["GET","POST"])
 def verify_code(email):
@@ -434,7 +480,7 @@ def verify_code(email):
     db.close()
     session['logged_in'] = False
     if request.method == 'POST' and 'enter-verification-code' in request.form and reset_form.validate:
-        if reset_form.validCode.data == otp:
+        if reset_form.email_validCode.data == otp:
             session['logged_in'] = True
             for key in users_dict:
                 if users_dict[key].get_email() == email:
@@ -727,6 +773,7 @@ def delete_user(nric):
         elif session['admin'] == True:
             return redirect(url_for('retrieve_users'))
 if __name__ == '__main__':
+    # can use type delete to delete Head Admin Accounts
     # add_admin()
     otp = token()
     app.run(debug = True) #run twice cuz debug built in system bla bla bla
