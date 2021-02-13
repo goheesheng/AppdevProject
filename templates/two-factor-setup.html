@@ -17,9 +17,10 @@
 {% endfor %}
 
     <h1>Two Factor Authentication Setup</h1>
-    <p>You are almost done! Please start FreeOTP on your smartphone and scan the following QR Code with it:</p>
+    <p>You are almost done! Please scan the following QR Code with it: </p>
+    <p>You can save it in Google or Microsoft Authenticator</p>
     <p><img id="qrcode" src="{{ url_for('qrcode') }}"></p>
-    <p>I'm done, take me to the <a class="btn btn-warning btn-lg " href="{{ url_for('login_page') }}">Login </a> page!</p>
+    <p>I'm done, take me to the <a class="btn btn-warning btn-lg " href="{{ url_for('home') }}">Home </a> page!</p>
 
 {% endblock %}
 

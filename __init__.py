@@ -397,7 +397,9 @@ def PhoneVerificationPath(nric):
                 session['current_user'] = nric #show name on navbar #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~MUST NOT STORE SESSION AS OBJECT, if not got Typeerror: Object of type User is not JSON serializable
                 session['Head_Admin'] = False # To ensure this account isn't admin
                 return redirect(url_for("home"))
-            print('wrong otp')
+            else:
+                flash('Incorrect one time password', 'otp')
+
     return render_template('PhoneLoginVerifyCode.html', form = phone_verify_form)
 
 @app.route('/chooseVerificationPath/<string:nric>', methods=["GET","POST"])
@@ -555,7 +557,7 @@ def retrieve_users():
     name = details.get_first_name()
 
     if session['Head_Admin'] == False and details.get_check_admin() == True:
-        get_key = users_dict[session['current_user']] # retrieve object from session['current_user'] which is a key
+        # get_key = users_dict[session['current_user']] # retrieve object from session['current_user'] which is a key
         return render_template('retrieveUsers.html', count=len(users_list), users_list=users_list, currentuser = name,user = details,check_admin = details.get_check_admin(),profile_pic = details.get_image_destination()) #to retrieve to html & display out (jinja code thing)
     elif session['Head_Admin'] == False and details.get_check_admin() == False:
         return render_template('retrieveUsers.html', count=len(users_list), users_list=users_list, currentuser = name,user = details)
@@ -774,6 +776,6 @@ def delete_user(nric):
             return redirect(url_for('retrieve_users'))
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
-    # add_admin()
+    add_admin()
     otp = token()
-    app.run(debug = True) #run twice cuz debug built in system bla bla bla
+    app.run(debug = False) #run twice cuz debug built in system bla bla bla

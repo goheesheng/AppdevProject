@@ -16,11 +16,12 @@
 {% endfor %}
 
 {% from "includes/_formHelper.html" import render_field %}
-
-<form method="POST" action="">
-  <div class="form-group">
-    {{ render_field(form.phone_token, class="form-control") }}
-  </div>
-  <input type ='submit' name = 'enter-verification-code'value='Enter verification code' class="'btn btn-primary">
-</form>
+<body>
+    <form method="POST" action="">
+      <div class="form-group">
+        {{ render_field(form.phone_token, class="form-control") }}
+      </div>
+      <input type ='submit' name = 'enter-verification-code'value='Enter verification code' class="'btn btn-primary">
+    </form>
+</body>
 {% endblock %}

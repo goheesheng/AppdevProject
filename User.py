@@ -1,6 +1,6 @@
 import shelve, onetimepass,os,base64
 from werkzeug.security import generate_password_hash, check_password_hash
-import json
+
 
 class User:
     count_id = 0 #default
@@ -8,14 +8,21 @@ class User:
     try: #it ran the first time u run init.py it will create this
         db = shelve.open('storage.db','c')
         count_id = db["Row_ID"] #retrieve count_id
+
         db.close()
     except:
         print('Error in retrieving Row ID from storage.db')
 
     def __init__(self, first_name, last_name,nric,race,phone_no,email, gender, password, address_1, address_2,postal_code,check_admin,image_destination,check_image_destination):
         self.otp_secret = base64.b32encode(os.urandom(10)).decode('utf-8')
-        db = shelve.open('storage.db','c') # it will run for the next sign up,whenever I create another account, I have to open it again as the previous guy account already db.close()
         User.count_id += 1 #plus 1 everytime
+        try:
+            db = shelve.open('storage.db','c') # it will run for the next sign up,whenever I create another account, I have to open it again as the previous guy account already db.close()
+            User.count_id = db["Row_ID"] #retrieve count_id
+            db["Row_ID"] = User.count_id #store it back to row_id
+            db.close() #User variable
+        except:
+            print('Error in fsdfsfdsfsdf Row ID from storage.db')
         self.__row_id = User.count_id
         self.__first_name = first_name
         self.__last_name = last_name
@@ -32,8 +39,7 @@ class User:
         self.__image_destination = image_destination
         self.__check_image_destination = check_image_destination
 
-        db["Row_ID"] = User.count_id #store it back to row_id
-        db.close() #User variable
+
 
     #Accessor Method
     def get_row_id(self):
@@ -110,3 +116,4 @@ class User:
         return onetimepass.valid_totp(otptoken, self.otp_secret)
 
 
+print(User.count_id)
