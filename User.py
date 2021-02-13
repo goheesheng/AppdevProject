@@ -22,7 +22,7 @@ class User:
             db["Row_ID"] = User.count_id #store it back to row_id
             db.close() #User variable
         except:
-            print('Error in fsdfsfdsfsdf Row ID from storage.db')
+            print("Error retrieving Row ID")
         self.__row_id = User.count_id
         self.__first_name = first_name
         self.__last_name = last_name
@@ -114,6 +114,3 @@ class User:
             .format(self.__first_name, self.otp_secret)
     def verify_totp(self, otptoken):
         return onetimepass.valid_totp(otptoken, self.otp_secret)
-
-
-print(User.count_id)

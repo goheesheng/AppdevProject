@@ -778,4 +778,4 @@ if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
     add_admin()
     otp = token()
-    app.run(debug = False) #run twice cuz debug built in system bla bla bla
+    app.run(debug = True) #run twice cuz debug built in system bla bla bla
