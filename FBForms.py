@@ -1,6 +1,5 @@
 from wtforms import Form, StringField, TextAreaField, validators, RadioField
 
-
 class CreateFeedbackForm(Form):
     thoughts = RadioField('Do you think our Customer Support was helpful?*', [validators.DataRequired()],
                           choices=[('Yes', 'Yes'), ('Partially', 'Partially'), ('No', 'No')])

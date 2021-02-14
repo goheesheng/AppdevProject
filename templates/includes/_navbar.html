@@ -14,7 +14,13 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg "
                                         href="/retrieveUsers"><img class="rounded-circle"
                         src="{{ url_for('static',filename='assets/img/default.png') }}" width="30"
@@ -42,7 +48,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg " href="/retrieveUsers">Customer
                     Lists</a>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg "
@@ -71,7 +84,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg " href="/retrieveUsers">Customer
                     Lists</a>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-warning btn-lg "
@@ -101,7 +121,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-success btn-lg "
                                         href="{{ url_for('upload', nric = session['current_user']) }}"><img class="rounded-circle"
                         src="{{ url_for('send_image',filename = profile_pic) }}" width="30"
@@ -128,7 +155,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                 <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-success btn-lg "
                                         href="{{ url_for('upload', nric = session['current_user']) }}"><img class="rounded-circle"
                         src="{{ url_for('static',filename = 'assets/img/default.png') }}" width="30"
@@ -156,7 +190,14 @@
                 <li class="nav-item"><a class="nav-link js-scroll-trigger " href="#Contact-Tracing">Contact Tracing</a>
                 </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Booking</a></li>
-                <li class="nav-item"><a class="nav-link js-scroll-trigger  " href="#Booking">Customer Support</a></li>
+                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#CustomerSupport"
+                                                 id="navbardrop"
+                                                 data-toggle="dropdown">Customer Support</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="/createTicket">Create Ticket</a>
+                        <a class="dropdown-item" href="/retrieveTickets">Retrieve Tickets</a>
+                    </div>
+                </li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-danger btn-lg "
                                         href="/login">Login</a></li>
                 <li class="nav-item"><a class="nav-link js-scroll-trigger btn btn-info btn-lg ml-1 pr-3"
