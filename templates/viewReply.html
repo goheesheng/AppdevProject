@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - View Ticket{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="container-fluid" style="border:1px solid #cecece;">
+        <div>
+            <style>
+        body {
+          margin-top: 83px;
+        }
+
+            </style>
+            {% for ticket in tickets_list %}
+            {% if ticket in tickets_list %}
+            <h2 class="text-danger">Ticket Number: {{ ticket.get_ticket_id() }}</h2>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <p class="font-weight-bold">Admin's Reply: </p>
+        <div class="p-3 mb-2 bg-light text-dark">
+            {% for reply in replies_list %}
+            <p>{{ reply.get_reply() }}</p>
+            {% endfor %}
+        </div>
+        <br>
+        <div class="text-center">
+            <div class="btn-group">
+                <a href="/home" class="btn btn-warning btn-lg">Home</a>
+            </div>
+
+        </div>
+        <br>
+    </div>
+</div>
+{% endblock %}

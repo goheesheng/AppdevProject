@@ -16,4 +16,4 @@ class Reply:
         self.__reply = reply
 
     def set_reply_id(self, reply_id):
-        self.__ticket_id = reply_id
+        self.__reply_id = reply_id

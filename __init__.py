@@ -812,7 +812,7 @@ def create_ticket():
 
         try:
             tickets_dict = db['Tickets']
-            tickets_count_id = int(db['inventories_count_id'])
+            tickets_count_id = int(db['tickets_count_id'])
         except:
             print("Error in retrieving Inventories from storage.db.")
 
@@ -826,8 +826,8 @@ def create_ticket():
         db['Tickets'] = tickets_dict
 
         db.close()
-
         return redirect(url_for('retrieve_tickets'))
+
 
     elif session['logged_in'] == False:
         flash('Please Login First')
@@ -902,22 +902,6 @@ def retrieve_tickets():
 
     return render_template('retrieveTickets.html', count=len(tickets_list), tickets_list=tickets_list, currentuser=name)
 
-@app.route('/retrieveInventories')
-def retrieve_inventories():
-    inventories_dict = {}
-    try:
-        db = shelve.open('storage.db', 'r')
-        inventories_dict = db['Inventories']
-        db.close()
-    except:
-        print("Error in retrieving Inventories from storage.db")
-
-    inventories_list = []
-    for key in inventories_dict:
-        inventory = inventories_dict.get(key)
-        inventories_list.append(inventory)
-
-    return render_template('retrieveInventories.html', count=len(inventories_list), inventories_list=inventories_list)
 
 @app.route('/updateTicket/<int:id>/', methods=['GET', 'POST'])
 def update_ticket(id):
@@ -935,7 +919,19 @@ def update_ticket(id):
         db['Tickets'] = tickets_dict
         db.close()
 
-        return redirect(url_for('retrieve_tickets'))
+        user_dict = {}
+        try:
+            db = shelve.open('storage.db', 'r')
+            users_dict = db['Users']
+            db.close()
+        except:
+            print('Error retrieving tickes')
+
+        id = session['current_user']
+        details = users_dict[id]
+        name = details.get_first_name()
+
+        return redirect(url_for('retrieve_tickets', currentuser=id))
     else:
         tickets_dict = {}
         db = shelve.open('storage.db', 'r')
@@ -947,14 +943,26 @@ def update_ticket(id):
         update_ticket_form.subject.data = ticket.get_subject()
         update_ticket_form.message.data = ticket.get_message()
 
-        return render_template('updateTicket.html', form=update_ticket_form)
+        user_dict = {}
+        try:
+            db = shelve.open('storage.db', 'r')
+            users_dict = db['Users']
+            db.close()
+        except:
+            print('Error retrieving tickes')
+
+        id = session['current_user']
+        details = users_dict[id]
+        name = details.get_first_name()
+
+        return render_template('updateTicket.html', form=update_ticket_form, currentuser=id)
 
 
 @app.route('/deleteTicket/<int:id>', methods=['POST'])
 def delete_ticket(id):
     tickets_dict = {}
     db = shelve.open('storage.db', 'w')
-    tickets_dict = db['Users']
+    tickets_dict = db['Tickets']
 
     tickets_dict.pop(id)
 
@@ -1048,35 +1056,6 @@ def feedback():
     return render_template('feedback.html', form=create_feedback_form, currentuser=name)
 
 
-# @app.route('/reply', methods=['GET', 'POST'])
-# def reply():
-#     create_reply_form = CreateReplyForm(request.form)
-#     if request.method == 'POST' and create_reply_form.validate():
-#         replies_dict = {}
-#         db = shelve.open('storage.db', 'c')
-#
-#         try:
-#             replies_dict = db['Replies']
-#         except:
-#             print('Error in retrieving feedback from storage.db')
-#
-#         reply = Reply.Reply(create_reply_form.reply.data)
-#         replies_dict[reply.get_reply_id] = reply
-#         db['Reply'] = replies_dict
-#         db.close()
-#
-#         session['replied'] = reply.get_reply()
-#
-#     db = shelve.open('storage.db', 'r')
-#     users_dict = db['Users']
-#     db.close()
-#     id = session['current_user']
-#     details = users_dict[id]
-#     name = details.get_first_name()
-#
-#     return render_template('viewTicket.html', form=create_reply_form)
-
-
 @app.route('/viewReply')
 def view_reply():
     replies_dict = {}
@@ -1091,12 +1070,6 @@ def view_reply():
     for key in replies_dict:
         reply = replies_dict.get(key)
         replies_list.append(reply)
-
-    flash('Admin has responded to your question')
-
-    if session['logged_in'] and session['Head_Admin'] == True:
-        id = session['current_user']  # id = 'admin'
-        return render_template('viewReply.html', count=len(replies_list), replies_list=replies_list, currentuser=id)
 
     user_dict = {}
     try:
