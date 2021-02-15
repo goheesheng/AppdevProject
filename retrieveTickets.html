@@ -1,0 +1,230 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+{% extends "base.html" %}
+{% block title %}Library Loan System - Retrieve Tickets{% endblock %}
+
+{% block content %}
+{% if session['logged_in'] == True and session['Head_Admin'] == False %}
+<div class="container">
+    <!-- Content here -->
+    <style>
+        body {
+          margin-top: 100px;
+        }
+
+        #scroll {
+            width:auto;
+            overflow-y:scroll;
+            position:relative;
+            height: 600px;
+            }
+
+
+    </style>
+
+    <h1>Ticket Record</h1>
+
+    <!--    {% for msg in get_flashed_messages() %}-->
+    <!--    <div class="alert alert-success alert-dismissible pb-100 " role='alert'>{{ msg }}-->
+    <!--        <button type="button" class="close" data-dismiss="alert">&times;</button>-->
+    <!--    </div>-->
+    <!--    {% endfor %}-->
+
+    {% if 'ticket_created' in session %}
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ session.pop('ticket_created', None) }} was created.
+    </div>
+    {% endif %}
+
+    <div>
+        {% if count == 0 %}
+        <p>There are no Tickets.</p>
+        {% elif count == 1 %}
+        <p>There is 1 Ticket.</p>
+        {% else %}
+        <p>There are {{count}} Tickets</p>
+        {% endif %}
+    </div>
+
+    <div id='scroll'>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Ticket Number</th>
+                <th>Category</th>
+                <th>Subject</th>
+                <th>View</th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for ticket in tickets_list %}
+            <tr>
+                <td>{{ ticket.get_ticket_id() }}</td>
+                <td>{{ ticket.get_category() }}</td>
+                <td>{{ ticket.get_subject() }}</td>
+                <td><a href="/viewTicket">View</a></td>
+                <td><a href="/updateTicket/{{ticket.get_ticket_id()}}" class="btn btn-warning">Update</a></td>
+                <td>
+                    <form action="{{url_for('delete_ticket', id=ticket.get_ticket_id())}}" method="POST">
+                        <!--            <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {#user.get_first_name()#} {#user.get_last_name()#}?');">-->
+                        <!-- Button to Open the Modal -->
+                        <button type="button" class="btn btn-danger" data-toggle="modal"
+                                data-target="#myModal_{{ticket.get_ticket_id()}}">
+                            Delete
+                        </button>
+
+                        <!-- The Modal -->
+                        <div class="modal" id="myModal_{{ticket.get_ticket_id()}}">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Delete Confirmation</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        Are you sure you want to delete Ticket {{ticket.get_ticket_id()}}?
+                                    </div>
+
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <input type="submit" value="Delete" class="btn btn-danger">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% elif session['logged_in'] == True and session['Head_Admin'] == True %}
+<div class="container">
+    <!-- Content here -->
+    <style>
+        body {
+          margin-top: 100px;
+        }
+
+        #scrolls {
+            width:auto;
+            overflow-y:scroll;
+            position:relative;
+            height: 600px;
+            }
+
+
+    </style>
+
+    <h1>Ticket Record</h1>
+
+    <!--    {% for msg in get_flashed_messages() %}-->
+    <!--    <div class="alert alert-success alert-dismissible pb-100 " role='alert'>{{ msg }}-->
+    <!--        <button type="button" class="close" data-dismiss="alert">&times;</button>-->
+    <!--    </div>-->
+    <!--    {% endfor %}-->
+
+    {% if 'ticket_created' in session %}
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        {{ session.pop('ticket_created', None) }} was created.
+    </div>
+    {% endif %}
+
+    <div>
+        {% if count == 0 %}
+        <p>There are no Tickets.</p>
+        {% elif count == 1 %}
+        <p>There is 1 Ticket.</p>
+        {% else %}
+        <p>There are {{count}} Tickets</p>
+        {% endif %}
+    </div>
+    <input class="form-control" id="myInput" type="text" placeholder="Search..">
+    <div id='scrolls'>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Ticket Number</th>
+                <th>Category</th>
+                <th>Subject</th>
+                <th>View</th>
+                <th></th>
+            </tr>
+            <tbody id="myTable">
+            {% for ticket in tickets_list %}
+            <tr>
+                <td>{{ ticket.get_ticket_id() }}</td>
+                <td>{{ ticket.get_category() }}</td>
+                <td>{{ ticket.get_subject() }}</td>
+                <td><a href="/viewTicket">View</a></td>
+                <td>
+                    <form action="{{url_for('delete_ticket', id=ticket.get_ticket_id())}}" method="POST">
+                        <!--            <input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {#user.get_first_name()#} {#user.get_last_name()#}?');">-->
+                        <!-- Button to Open the Modal -->
+                        <button type="button" class="btn btn-danger" data-toggle="modal"
+                                data-target="#myModall_{{ticket.get_ticket_id()}}">
+                            Delete
+                        </button>
+
+                        <!-- The Modal -->
+                        <div class="modal" id="myModall_{{ticket.get_ticket_id()}}">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+
+                                    <!-- Modal Header -->
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">Delete Confirmation</h4>
+                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    </div>
+
+                                    <!-- Modal body -->
+                                    <div class="modal-body">
+                                        Are you sure you want to delete Ticket {{ticket.get_ticket_id()}}?
+                                    </div>
+
+                                    <!-- Modal footer -->
+                                    <div class="modal-footer">
+                                        <input type="submit" value="Delete" class="btn btn-danger">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+
+    </script>
+    {% endif %}
+    {% endblock %}
+</div>

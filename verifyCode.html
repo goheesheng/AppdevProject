@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Create User{% endblock %}
+
+
+{% block content %}
+    <style>
+        body {
+          margin-top: 100px;
+        }
+    </style>
+
+{% for msg in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+{% endfor %}
+
+{% from "includes/_formHelper.html" import render_field %}
+
+<form method="POST" action="">
+  <div class="form-group">
+    {{ render_field(form.email_validCode, class="form-control") }}
+  </div>
+  <input type ='submit' name = 'enter-verification-code'value='Enter verification code' class="'btn btn-primary">
+</form>
+{% endblock %}

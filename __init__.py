@@ -9,6 +9,9 @@ from User import User
 from PWReset import PWReset, PWConfirm
 from AdminUpdateForm import Admin_UpdateUserForm
 from flask_mail import Mail, Message
+import Customer
+from Thread import CreateThreadForm
+from Thread import CreateCommentForm
 import shelve, pyotp, onetimepass, pyqrcode, Ticket, Feedback, Reply
 import os, base64
 from io import BytesIO
@@ -1196,6 +1199,128 @@ def delete_job(no):
     db.close()
 
     return redirect(url_for('retrieve_jobs'))
+
+@app.route('/Forum')
+def forum():
+    post_dict = {}
+    db = shelve.open('forumStorage.db', 'c')
+    post_dict = db['Post']
+    db.close()
+
+    post_list = []
+    for key in post_dict:
+        Post = post_dict.get(key)
+        post_list.append(Post)
+
+    return render_template('Forum.html', count=len(post_list), post_list=post_list)
+
+@app.route('/CreateThread', methods=['GET', 'POST'])
+def create_thread():
+    create_thread_form = CreateThreadForm(request.form)
+    if request.method == 'POST' and create_thread_form.validate():
+
+        post_dict = {}
+        db = shelve.open('forumStorage.db', 'w')
+
+        try:
+            post_dict = db['Post']
+        except:
+            print("Error in retrieving Post from storage.db.")
+
+        post = Customer.Post(create_thread_form.title.data, create_thread_form.body.data)
+        post_dict[post.get_thread_id()] = post
+        db['Post'] = post_dict
+
+        db.close()
+
+        return redirect(url_for('forum'))
+    return render_template('createThread.html', form=create_thread_form)
+
+@app.route('/delete_post/<int:id>', methods=['POST'])
+def delete_post(id):
+    forum_dict = {}
+    db = shelve.open('forumStorage.db', 'w')
+    forum_dict = db['Post']
+
+    forum_dict.pop(id)
+
+    db['Post'] = forum_dict
+    db.close()
+
+    return redirect(request.referrer)
+
+@app.route('/editUser/<int:id>/', methods=['GET', 'POST'])
+def edit_thread(id):
+    edit_user_thread = CreateThreadForm(request.form)
+    if request.method == 'POST' and edit_user_thread.validate():
+        db = shelve.open('forumStorage.db', 'w')
+        users_dict = db['Post']
+
+        user = users_dict.get(id)
+        user.set_title(edit_user_thread.title.data)
+        user.set_body(edit_user_thread.body.data)
+        db['Post'] = users_dict
+        db.close()
+
+        return redirect(url_for('forum'))
+    else:
+        users_dict = {}
+        db = shelve.open('forumStorage.db', 'r')
+        users_dict = db['Post']
+        db.close()
+
+        thread = users_dict.get(id)
+        edit_user_thread.title.data = thread.get_title()
+        edit_user_thread.body.data = thread.get_body()
+
+        return render_template('editUser.html', form=edit_user_thread)
+
+@app.route('/Comment/<int:id>/', methods=['GET', 'POST'])
+def add_comment(id):
+    create_user_comment = CreateCommentForm(request.form)
+    post_dict = {}
+    db = shelve.open('forumStorage.db', 'w')
+    post_dict = db['Post']
+    comment_dict = {}
+
+    if 'comment' in db:
+        comment_dict = db['comment']
+    db.close()
+    Post = post_dict.get(id)
+    comment_list = []
+    for key in comment_dict:
+        Comment = comment_dict.get(key)
+        comment_list.append(Comment)
+
+    if request.method == 'POST' and create_user_comment.validate():
+
+        comment_dict = {}
+        db = shelve.open('forumStorage.db', 'c')
+        try:
+            comment_dict = db['comment']
+        except:
+            print("Error in retrieving Post from storage.db.")
+
+        Comment = Customer.Comment(create_user_comment.comment.data)
+        comment_dict[Comment.get_comment()] = Comment
+        db['comment'] = comment_dict
+
+        db.close()
+
+        return redirect(url_for('add_comment', id=id))
+    return render_template('comment.html', form=create_user_comment, Post=Post, comment_list=comment_list)
+
+@app.route('/delete_comment/<id>', methods=['POST'])
+def delete_comment(id):
+    comment_dict = {}
+    db = shelve.open('forumStorage.db', 'w')
+    comment_dict = db['comment']
+    comment_dict.pop(id)
+
+    db['comment'] = comment_dict
+    db.close()
+
+    return redirect(request.referrer)
 
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts

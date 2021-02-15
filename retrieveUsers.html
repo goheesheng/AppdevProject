@@ -1,0 +1,152 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+{% extends "base.html" %}
+{% block title %}Library Loan System - Retrieve Users{% endblock %}
+
+{% block content %}
+ <style>
+        body {
+          margin-top: 100px;
+        }
+
+        #scroll {
+            width:auto;
+            overflow-y:scroll;
+            position:relative;
+            height: 600px;
+            }
+
+    </style>
+{% for msg in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+{% endfor %}
+
+{% if 'user_updated' in session %}
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ session.pop('user_updated', None) }} was updated.
+</div>
+
+{% elif 'user_deleted' in session %}
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ session.pop('user_deleted', None) }} was deleted.
+</div>
+
+{% endif %}
+
+<h1 class="display-4">Retrieve Users</h1>
+<div>
+    {% if count == 0 %}
+    <p>There are no users.</p>
+    {% else %}
+    <p>There are {{ count }} users.</p>
+    {% endif %}
+</div>
+
+<div id = 'scroll'>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Row ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>NRIC</th>
+            <th>Race</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>Address 1</th>
+            <th>Address 2</th>
+            <th>Postal Code</th>
+
+        </tr>
+        </thead>
+        <input class="form-control" id="myInput" type="text" placeholder="Search..">
+        <tbody id="myTable">
+        <!-- print all the data here       -->
+        {% for user in users_list %}
+        <tr>
+            <td>{{ user.get_row_id() }})</td>
+            <td>{{ user.get_first_name() }}</td>
+            <td>{{ user.get_last_name() }}</td>
+            <td>{{ user.get_nric() }}</td>
+            {% if user.get_race() == "C" %}
+            <td>Chinese</td>
+            {% elif user.get_race() == "M" %}
+            <td>Malay</td>
+            {% elif user.get_race() == "I" %}
+            <td>Indian</td>
+            {% elif user.get_race() == "O" %}
+            <td>Others</td>
+            {% endif %}
+            <td>{{ user.get_phone_no() }}</td>
+            <td>{{ user.get_email() }}</td>
+            {% if user.get_gender() == "F" %}
+            <td>Female</td>
+            {% elif user.get_gender() == "M" %}
+            <td>Male</td>
+            {% endif %}
+            <td>{{ user.get_address_1() }}</td>
+            <td>{{ user.get_address_2() }}</td>
+            <td>{{ user.get_postal_code() }}</td>
+
+            <td><a href="/updateUser/{{user.get_nric()}}" class="btn btn-warning">Update</a></td>
+            <td>
+                <form action="{{url_for('delete_user', nric=user.get_nric())}}" method="POST">
+                    <!--                input type="submit" value="Delete" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete {#user.get_first_name()#} {#user.get_last_name()#}?');">-->
+                    <!-- Button to Open the Modal -->
+                    <button type="button" class="btn btn-danger" data-toggle="modal"
+                            data-target="#myModal_{{user.get_nric()}}">Delete
+                    </button>
+
+                    <!-- The Modal -->
+                    <div class="modal" id="myModal_{{user.get_nric()}}">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+
+                                <!-- Modal Header -->
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Delete Confirmation</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+
+                                <!-- Modal body -->
+                                <div class="modal-body">
+                                    Are you sure you want to delete {{user.get_first_name()}} {{user.get_last_name()}}?
+                                </div>
+
+
+                                <!-- Modal footer -->
+                                <div class="modal-footer">
+                                    <input type="submit" value="Delete" class="btn btn-danger">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+  $("#myInput").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#myTable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+
+</script>
+
+{% endblock %}

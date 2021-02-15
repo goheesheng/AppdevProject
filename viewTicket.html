@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - View Ticket{% endblock %}
+
+{% block content %}
+{% from "includes/_formHelper.html" import render_field %}
+{% if session['logged_in'] == True and session['Head_Admin'] == False %}
+<div class="container">
+    <div class="container-fluid" style="border:1px solid #cecece;">
+        <div>
+            <style>
+        body {
+          margin-top: 83px;
+        }
+
+            </style>
+            {% for ticket in tickets_list %}
+            {% if ticket in tickets_list %}
+            <h2 class="text-danger">Ticket Number: {{ ticket.get_ticket_id() }}</h2>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <dl class="row">
+            <dt class="col-sm-1">Category:</dt>
+            {% for ticket in tickets_list %}
+            <dd class="col-sm-2">{{ ticket.get_category() }}</dd>
+            {% endfor %}
+        </dl>
+        <p class="font-weight-bold">Your Message: </p>
+        <div class="p-3 mb-2 bg-light text-dark">
+            {% for ticket in tickets_list %}
+            <p>{{ ticket.get_message() }}</p>
+            {% endfor %}
+        </div>
+        <br>
+        <div class="text-center">
+            <div class="btn-group">
+                <a href="/createTicket" class="btn btn-warning btn-lg">Create Ticket</a>
+            </div>
+            <div class="btn-group">
+                <a href="/feedback" class="btn btn-warning btn-lg">Feedback</a>
+            </div>
+            <div class="btn-group">
+                <a href="/viewReply" class="btn btn-warning btn-lg">View Admin's Reply</a>
+            </div>
+        </div>
+        <br>
+    </div>
+</div>
+
+{% elif session['logged_in'] == True and session['Head_Admin'] == True %}
+<div class="container">
+    <div class="container-fluid" style="border:1px solid #cecece;">
+        <div>
+            <style>
+        body {
+          margin-top: 83px;
+        }
+
+
+
+            </style>
+            {% for ticket in tickets_list %}
+            {% if ticket in tickets_list %}
+            <h2 class="text-danger">Ticket Number: {{ ticket.get_ticket_id() }}</h2>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br>
+        <dl class="row">
+            <dt class="col-sm-1">Status:</dt>
+            <dd class="col-sm-2">Under Processing</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-1">Category:</dt>
+            {% for ticket in tickets_list %}
+            <dd class="col-sm-2">{{ ticket.get_category() }}</dd>
+            {% endfor %}
+        </dl>
+        <p class="font-weight-bold">User's Message: </p>
+        <div class="p-3 mb-2 bg-light text-dark">
+            {% for ticket in tickets_list %}
+            <p>{{ ticket.get_message() }}</p>
+            {% endfor %}
+        </div>
+        <br>
+        <form method="POST" action="">
+            <div class="form-group">
+                {{ render_field(form.reply, class="form-control") }}
+            </div>
+            <input type="submit" value="Submit" class="btn btn-primary"/>
+        </form>
+    </div>
+    <br>
+</div>
+
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Library Loan System - Create User{% endblock %}
+
+
+
+
+{% block content %}
+    <style>
+        body {
+          margin-top: 100px;
+        }
+    </style>
+{% for msg in get_flashed_messages() %}
+<div class="alert alert-warning alert-dismissible pb-100 " role='alert'>{{ msg }}
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+</div>
+{% endfor %}
+
+    <h1>Two Factor Authentication Setup</h1>
+    <p>You are almost done! Please scan the following QR Code with it: </p>
+    <p>You can save it in Google or Microsoft Authenticator</p>
+    <p><img id="qrcode" src="{{ url_for('qrcode') }}"></p>
+    <p>I'm done, take me to the <a class="btn btn-warning btn-lg " href="{{ url_for('home') }}">Home </a> page!</p>
+
+{% endblock %}
+
+
