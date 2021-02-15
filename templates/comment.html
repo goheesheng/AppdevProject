@@ -7,6 +7,7 @@
 <br>
 <br>
 <div class="container-fluid p-3 my-3 border">
+<p>Posted By: {{session['current_user']}}</p>
 <p>Title:</p>
 <p>{{Post.get_title()}}</p>
 <p>Body:</p>
@@ -25,14 +26,18 @@
 {% if comment_list|length != 0 %}
 <div class="container-fluid p-3 my-3 border">
     <form>
+        <p>Posted By: {{session['current_user']}}</p>
       <div>
         {{comment.get_comment()}}
       </div>
   </form>
+    {% if session['logged_in'] == True and session['Head_Admin'] == True and session['admin'] == True %}
     <form action="{{url_for('delete_comment', id=comment.get_comment())}}" method="POST">
             <button type="submit" class="btn btn-danger"> Delete</button>
-          </form>
-</div>
+      </form>
+    {% endif %}
+
+    </div>
 {% endif %}
 
 {% endfor %}

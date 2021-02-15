@@ -8,8 +8,12 @@
 <br>
 <button onclick="location.href = '/CreateThread';">Add Thread</button>
 {% for post in post_list %}
+<p>Posted By: {{session['current_user']}}</p>
 <div class="container-fluid p-3 my-3 border">
     <form>
+        <div>
+
+        </div>
       <div>
         {{post.get_title()}}
       </div>
@@ -17,11 +21,14 @@
         {{post.get_body()}}
       </div>
   </form>
+    {% if session['logged_in'] == True and session['Head_Admin'] == True %}
           <form action="{{url_for('delete_post', id=post.get_thread_id())}}" method="POST">
             <button type="submit" class="btn btn-danger"> Delete</button>
+    {% endif %}
             <a href="/editUser/{{post.get_thread_id()}}" class="btn btn-warning">Edit</a>
             <a href="/Comment/{{post.get_thread_id()}}" class="btn btn-warning">Comment</a>
           </form>
+
   </div>
     {% endfor %}
 

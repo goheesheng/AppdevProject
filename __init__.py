@@ -1204,6 +1204,7 @@ def delete_job(no):
 
 @app.route('/Forum')
 def forum():
+    user =session['current_user']
     post_dict = {}
     db = shelve.open('forumStorage.db', 'c')
     post_dict = db['Post']
@@ -1279,6 +1280,8 @@ def edit_thread(id):
 
 @app.route('/Comment/<int:id>/', methods=['GET', 'POST'])
 def add_comment(id):
+    user =session['current_user']
+
     create_user_comment = CreateCommentForm(request.form)
     post_dict = {}
     db = shelve.open('forumStorage.db', 'w')
@@ -1439,6 +1442,6 @@ def delete_booking(id):
 
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
-    # add_admin()
+    add_admin()
     otp = token()
     app.run(debug=True)  # run twice cuz debug built in system bla bla bla
