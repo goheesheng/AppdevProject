@@ -17,6 +17,8 @@ import os, base64
 from io import BytesIO
 import shelve, Jobs
 from CreateJobForm import CreateJobForm
+from Form_Booking import CreateUserFormBooking
+import FormResponse
 
 # print(os.urandom(24)) generated for line btm 3rd line
 app = Flask(__name__)
@@ -1321,6 +1323,104 @@ def delete_comment(id):
     db.close()
 
     return redirect(request.referrer)
+
+@app.route('/covidForm', methods=['GET', 'POST'])
+def create_form():
+    create_user_form = CreateUserFormBooking(csrf_enabled=False)
+    if request.method == 'POST' and create_user_form.validate() and session['logged_in'] == True:
+        users_dict_booking = {}
+        db = shelve.open('storage.db', 'c')
+
+        try:
+            users_dict_booking = db['Bookings']
+        except:
+            print("Error in retrieving Bookings from storage.db.")
+
+        user = FormResponse.UserBooking(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.email.data, create_user_form.jobs.data, create_user_form.date.data, create_user_form.time.data)
+        users_dict_booking[user.get_user_id()] = user
+        db['Bookings'] = users_dict_booking
+
+        # Test codes
+        users_dict_booking = db['Bookings']
+        user = users_dict_booking[user.get_user_id()]
+        print(user.get_first_name(), user.get_last_name(), "was stored in storage.db successfully with user_id ==", user.get_user_id())
+
+        db.close()
+
+        return redirect(url_for('home'))
+    elif session['logged_in'] == False:
+        flash('Please Login First')
+        return redirect(url_for('login_page'))
+
+    return render_template('covidForm.html', form=create_user_form)
+
+@app.route('/retrieveBooking')
+def retrieve_form_booking():
+    users_dict_booking = {}
+    try:
+        db = shelve.open('storage.db', 'r')
+    except:
+        users_list_booking = []
+    else:
+        users_dict_booking = db['Bookings']
+        db.close()
+
+        users_list_booking = []
+        for key in users_dict_booking:
+            user = users_dict_booking.get(key)
+            users_list_booking.append(user)
+
+    return render_template('retrieveBooking.html', count=len(users_list_booking), users_list=users_list_booking)
+
+@app.route('/updateBooking/<int:id>/', methods=['GET', 'POST'])
+def update_booking(id):
+    update_user_form = CreateUserFormBooking(request.form, csrf_enabled=False)
+    if request.method == 'POST' and update_user_form.validate():
+        users_dict_booking = {}
+        db = shelve.open('storage.db', 'w')
+        users_dict_booking = db['Users']
+
+        user = users_dict_booking.get(id)
+        user.set_first_name(update_user_form.first_name.data)
+        user.set_last_name(update_user_form.last_name.data)
+        user.set_email(update_user_form.email.data)
+        user.set_job(update_user_form.jobs.data)
+        user.set_date(update_user_form.date.data)
+        user.set_time(update_user_form.time.data)
+
+        db['Bookings'] = users_dict_booking
+        db.close()
+
+        return redirect(url_for('retrieve_users'))
+    else:
+        users_dict_booking = {}
+        db = shelve.open('storage.db', 'r')
+        users_dict_booking = db['Bookings']
+        db.close()
+
+        user = users_dict_booking.get(id)
+        update_user_form.first_name.data = user.get_first_name()
+        update_user_form.last_name.data = user.get_last_name()
+        update_user_form.email.data = user.get_email()
+        update_user_form.jobs.data = user.get_job()
+        update_user_form.date.data = user.get_date()
+        update_user_form.time.data = user.get_time()
+
+        return render_template('updateBooking.html', form=update_user_form)
+
+@app.route('/deleteUser/<int:id>', methods=['POST'])
+def delete_booking(id):
+    users_dict_booking = {}
+    db = shelve.open('storage.db', 'w')
+    users_dict_booking = db['Bookings']
+
+    users_dict_booking.pop(id)
+
+    db['Bookings'] = users_dict_booking
+    db.close()
+
+    return redirect(url_for('retrieve_user'))
+
 
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
