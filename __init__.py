@@ -12,6 +12,8 @@ from flask_mail import Mail, Message
 import shelve, pyotp, onetimepass, pyqrcode, Ticket, Feedback, Reply
 import os, base64
 from io import BytesIO
+import shelve, Jobs
+from CreateJobForm import CreateJobForm
 
 # print(os.urandom(24)) generated for line btm 3rd line
 app = Flask(__name__)
@@ -1085,6 +1087,115 @@ def view_reply():
 
     return render_template('viewReply.html', count=len(replies_list), replies_list=replies_list, currentuser=name)
 
+@app.route('/jobCreate', methods=['GET', 'POST'])
+def create_job():
+    create_job_form = CreateJobForm(request.form)
+    if request.method == 'POST' and create_job_form.validate():
+        jobs_dict = {}
+        db = shelve.open('storage.db', 'c')
+
+        try:
+            jobs_dict = db['Jobs']
+        except:
+            print("Error in retrieving Jobs from storage.db.")
+
+        job = Jobs.Jobs(create_job_form.name.data, create_job_form.location.data, create_job_form.job_type.data, create_job_form.timing.data, create_job_form.salary.data)
+        jobs_dict[job.get_count_no()] = job
+        db['Jobs'] = jobs_dict
+
+        db.close()
+
+        return redirect(url_for('retrieve_jobs'))
+    return render_template('jobCreate.html', form=create_job_form)
+
+@app.route('/jobRetrieve')
+def retrieve_jobs():
+    jobs_dict = {}
+
+    db = shelve.open('storage.db', 'r')
+    jobs_dict = db['Jobs']
+    db.close()
+
+    # users_dict = {}
+    # db = shelve.open('storage.db', 'r')
+    # users_dict = db['Users']
+    # db.close()
+    #
+    # user = users_dict.get(nric)
+    # id = session['current_user']  # key of the person who first logged in
+
+    jobs_list = []
+    for key in jobs_dict:
+        job = jobs_dict.get(key)
+        jobs_list.append(job)
+
+    return render_template('jobRetrieve.html',count=len(jobs_list), jobs_list=jobs_list)
+
+@app.route('/jobSearch')
+def search_jobs():
+    if session['logged_in'] == True:
+        jobs_dict = {}
+        db = shelve.open('storage.db', 'r')
+        jobs_dict = db['Jobs']
+        db.close()
+
+        jobs_list = []
+        for key in jobs_dict:
+            job = jobs_dict.get(key)
+            jobs_list.append(job)
+
+    elif session['logged_in'] == False:
+        flash('Please Login First')
+        return redirect(url_for('login_page'))
+
+    return render_template('jobSearch.html',count=len(jobs_list), jobs_list=jobs_list)
+
+@app.route('/jobUpdate/<int:no>/', methods=['GET', 'POST'])
+def update_job(no):
+    update_job_form = CreateJobForm(request.form)
+    if request.method == 'POST' and update_job_form.validate():
+        jobs_dict = {}
+        db = shelve.open('storage.db', 'w')
+        jobs_dict = db['Jobs']
+
+        job = jobs_dict.get(no)
+        job.set_name(update_job_form.name.data)
+        job.set_location(update_job_form.location.data)
+        job.set_job_type(update_job_form.job_type.data)
+        job.set_timing(update_job_form.timing.data)
+        job.set_salary(update_job_form.salary.data)
+
+        db['Jobs'] = jobs_dict
+        db.close()
+
+        return redirect(url_for('retrieve_jobs'))
+    else:
+        jobs_dict = {}
+        db = shelve.open('storage.db', 'r')
+        jobs_dict = db['Jobs']
+        db.close()
+
+        job = jobs_dict.get(no)
+        update_job_form.name.data = job.get_name()
+        update_job_form.location.data = job.get_location()
+        update_job_form.job_type.data = job.get_job_type()
+        update_job_form.timing.data = job.get_timing()
+        update_job_form.salary.data = job.get_salary()
+
+        return render_template('jobUpdate.html', form=update_job_form)
+
+@app.route('/deleteJob/<int:no>', methods=['POST'])
+def delete_job(no):
+    jobs_dict = {}
+    db = shelve.open('storage.db', 'w')
+    jobs_dict = db['Jobs']
+
+    jobs_dict.pop(no)
+
+    db['Jobs'] = jobs_dict
+    db.close()
+
+    return redirect(url_for('retrieve_jobs'))
 
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
