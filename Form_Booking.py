@@ -1,7 +1,7 @@
 from wtforms import StringField, validators, SelectField
 from flask_wtf import FlaskForm
 from wtforms.fields.html5 import DateField
-from wtforms.fields.html5 import TimeField
+# from wtforms.fields.html5 import TimeField
 
 class CreateUserFormBooking(FlaskForm):
     first_name = StringField('First Name', [validators.Length(min=1, max=150), validators.DataRequired()])
@@ -15,4 +15,4 @@ class CreateUserFormBooking(FlaskForm):
                                                                      ('N/H', 'Nursing/Health Care'), ('Sales', 'Sales/Retail/Manufacturing'), ('S', 'Security'), ('Events','Temporary/Events'),
                                                                      ('W&L', 'Warehousing & Logistics')], default='')
     date = DateField('Date ', [validators.DataRequired()])
-    time = TimeField('Time',format='%H:%M')
+    # time = TimeField('Time',format='%H:%M')

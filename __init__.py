@@ -12,7 +12,7 @@ from flask_mail import Mail, Message
 import Customer
 from Thread import CreateThreadForm
 from Thread import CreateCommentForm
-import shelve, pyotp, onetimepass, pyqrcode, Ticket, Feedback, Reply
+import pyotp, onetimepass, pyqrcode, Ticket, Feedback, Reply, shelve
 import os, base64
 from io import BytesIO
 import shelve, Jobs
@@ -758,7 +758,7 @@ def update_user(nric):
         id = session['current_user']  # key of the person who first logged in
         name = users_dict[id].get_first_name()  # to get person who first logged in
         return render_template('updateUser.html', form=update_user_form, currentuser=name, nric=id,
-                               check_admin=user.get_check_admin())
+                               check_admin=user.get_check_admin(), profile_pic = user.get_image_destination())
     elif user.get_check_admin() == False:
         users_dict = {}
         db = shelve.open('storage.db', 'r')
@@ -772,7 +772,7 @@ def update_user(nric):
         id = session['current_user']
         print(id)
         name = users_dict[id].get_first_name()
-        return render_template('updateUser.html', form=update_user_form, currentuser=name, nric=id)  # show navbar name
+        return render_template('updateUser.html', form=update_user_form, currentuser=name, nric=id,profile_pic = user.get_image_destination())  # show navbar name
     return redirect(url_for('retrieve_users'))
 
 
@@ -852,7 +852,7 @@ def create_ticket():
     details = users_dict[id]
     name = details.get_first_name()
 
-    return render_template('createTicket.html', form=create_ticket_form, currentuser=name)
+    return render_template('createTicket.html', form=create_ticket_form, currentuser=name,profile_pic= details.get_image_destination())
 
 
 @app.route('/retrieveTickets')
@@ -907,7 +907,7 @@ def retrieve_tickets():
     details = users_dict[id]
     name = details.get_first_name()
 
-    return render_template('retrieveTickets.html', count=len(tickets_list), tickets_list=tickets_list, currentuser=name)
+    return render_template('retrieveTickets.html', count=len(tickets_list), tickets_list=tickets_list, currentuser=name,profile_pic= details.get_image_destination())
 
 
 @app.route('/updateTicket/<int:id>/', methods=['GET', 'POST'])
@@ -1327,14 +1327,17 @@ def delete_comment(id):
 @app.route('/covidForm', methods=['GET', 'POST'])
 def create_form():
     create_user_form = CreateUserFormBooking(csrf_enabled=False)
+    users_dict = {}
     if request.method == 'POST' and create_user_form.validate() and session['logged_in'] == True:
         users_dict_booking = {}
+
         db = shelve.open('storage.db', 'c')
 
         try:
             users_dict_booking = db['Bookings']
         except:
             print("Error in retrieving Bookings from storage.db.")
+
 
         user = FormResponse.UserBooking(create_user_form.first_name.data, create_user_form.last_name.data, create_user_form.email.data, create_user_form.jobs.data, create_user_form.date.data, create_user_form.time.data)
         users_dict_booking[user.get_user_id()] = user
@@ -1345,18 +1348,27 @@ def create_form():
         user = users_dict_booking[user.get_user_id()]
         print(user.get_first_name(), user.get_last_name(), "was stored in storage.db successfully with user_id ==", user.get_user_id())
 
+
+
         db.close()
 
         return redirect(url_for('home'))
     elif session['logged_in'] == False:
         flash('Please Login First')
         return redirect(url_for('login_page'))
-
-    return render_template('covidForm.html', form=create_user_form)
+    db = shelve.open('storage.db', 'r')
+    try:
+        users_dict = db['Users']
+    except:
+        print("Error in retrieving Users from storage.db")
+    object = users_dict[session['current_user']]
+    nric = object.get_nric()
+    return render_template('covidForm.html', form=create_user_form, currentuser = nric, profile_pic= object.get_image_destination())
 
 @app.route('/retrieveBooking')
 def retrieve_form_booking():
     users_dict_booking = {}
+    users_dict = {}
     try:
         db = shelve.open('storage.db', 'r')
     except:
@@ -1370,7 +1382,10 @@ def retrieve_form_booking():
             user = users_dict_booking.get(key)
             users_list_booking.append(user)
 
-    return render_template('retrieveBooking.html', count=len(users_list_booking), users_list=users_list_booking)
+    object = users_dict[session['current_user']]
+    nric = object.get_nric()
+
+    return render_template('retrieveBooking.html', count=len(users_list_booking), users_list=users_list_booking, currentuser = nric, profile_pic= object.get_image_destination())
 
 @app.route('/updateBooking/<int:id>/', methods=['GET', 'POST'])
 def update_booking(id):
@@ -1424,6 +1439,6 @@ def delete_booking(id):
 
 if __name__ == '__main__':
     # can use type delete to delete Head Admin Accounts
-    add_admin()
+    # add_admin()
     otp = token()
     app.run(debug=True)  # run twice cuz debug built in system bla bla bla
