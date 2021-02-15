@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Angel{% endblock %}
+
+{% block content %}
+<br>
+<br>
+<br>
+<br>
+<button onclick="location.href = '/CreateThread';">Add Thread</button>
+{% for post in post_list %}
+<div class="container-fluid p-3 my-3 border">
+    <form>
+      <div>
+        {{post.get_title()}}
+      </div>
+      <div>
+        {{post.get_body()}}
+      </div>
+  </form>
+          <form action="{{url_for('delete_post', id=post.get_thread_id())}}" method="POST">
+            <button type="submit" class="btn btn-danger"> Delete</button>
+            <a href="/editUser/{{post.get_thread_id()}}" class="btn btn-warning">Edit</a>
+            <a href="/Comment/{{post.get_thread_id()}}" class="btn btn-warning">Comment</a>
+          </form>
+  </div>
+    {% endfor %}
+
+{% endblock %}

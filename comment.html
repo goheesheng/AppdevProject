@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Angel - Comment{% endblock %}
+
+{% block content %}
+{% from "includes/_formHelper.html" import render_field %}
+<br>
+<br>
+<br>
+<div class="container-fluid p-3 my-3 border">
+<p>Title:</p>
+<p>{{Post.get_title()}}</p>
+<p>Body:</p>
+<p>{{Post.get_body()}}</p>
+</div>
+<br>
+<h1 class="display-4">Add comment</h1>
+
+<form method="POST" action="">
+  <div class="form-group">
+    {{ render_field(form.comment, class="form-control") }}
+  </div>
+  <input type="submit" value="Submit" class="btn btn-primary"/>
+</form>
+{% for comment in comment_list %}
+{% if comment_list|length != 0 %}
+<div class="container-fluid p-3 my-3 border">
+    <form>
+      <div>
+        {{comment.get_comment()}}
+      </div>
+  </form>
+    <form action="{{url_for('delete_comment', id=comment.get_comment())}}" method="POST">
+            <button type="submit" class="btn btn-danger"> Delete</button>
+          </form>
+</div>
+{% endif %}
+
+{% endfor %}
+{% endblock %}
+
