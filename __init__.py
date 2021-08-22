@@ -22,10 +22,10 @@ import FormResponse
 
 # print(os.urandom(24)) generated for line btm 3rd line
 app = Flask(__name__)
-app.secret_key = '\xc7_\xc4\xdf\x05$\xce\x06\xa8\xd7\x83\xdd\x8d\xae\x92\xd1`\x1e\x04\x01\xbe\xdd\x02\xf6'
+app.secret_key = '************************************'
 
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6LcSED4aAAAAAIa6rWWLbnka0jIkCRNt43IwOp-V'
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LcSED4aAAAAAJxrdazygAQhvmyjyaZm7HI-n3Pw'
+app.config['RECAPTCHA_PUBLIC_KEY'] = '************'
+app.config['RECAPTCHA_PRIVATE_KEY'] = '************************************'
 
 # when user submit the button, this path is used for uploading the image
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -34,8 +34,8 @@ app.config.update(
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
     MAIL_USE_SSL=False,
-    MAIL_USERNAME='appdevescip2003@gmail.com',
-    MAIL_PASSWORD='appdev7181',  # need pw if not the stupid error come out again
+    MAIL_USERNAME='************@gmail.com',
+    MAIL_PASSWORD='************',  # need pw if not the stupid error come out again
     MAIL_DEBUG=True,
     MAIL_SUPPRESS_SEND=False,
     MAIL_ASCII_ATTACHMENTS=True,
@@ -374,7 +374,7 @@ def EmailLoginVerifyCode(nric):
     first_name = user.get_first_name()
     email_data.append(email)
     email_data.append(first_name)
-    msg = Message('Login Confirmation', sender='appdevescip2003@gmail.com',
+    msg = Message('Login Confirmation', sender='************@gmail.com',
                   recipients=[email_data[0]])  # need put anther square bracket as will have string concatenation error
     msg.html = render_template('email.html', postID='login verify', first_name=email_data[1], token=otp)
     mail.send(msg)
@@ -530,7 +530,7 @@ def reset_pw():
             if reset_form.email.data == email:  # will check user_dict emails if got such email, it is == as it is in for loop thus checking each email 1 by 1
                 email_data.append(email)
                 email_data.append(first_name)
-                msg = Message('Reset password', sender='appdevescip2003@gmail.com', recipients=[
+                msg = Message('Reset password', sender='************@gmail.com', recipients=[
                     email_data[0]])  # need put anther square bracket as will have string concatenation error
                 msg.html = render_template('email.html', postID='reset password', first_name=email_data[1], token=otp)
                 mail.send(msg)
