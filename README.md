@@ -1,9 +1,9 @@
 # AppdevProject
 Angel is a government website created for an application development project. 
 
-Focused on creating 2 step-verification that supports both Microsoft and Google authenticator, the login page, registration of accounts using either 2FA or email OTP and lastly created a role-based system of Customer > Staff > Head Admin.
+Focused on creating 2 step-verification that supports both Microsoft and Google authenticator, the login page, registration of accounts using either 2FA or email OTP,All passwords are hashed and salted, and lastly created a role-based system of Customer > Staff > Head Admin.
 
-1. Login Page - Additional Feature: Users can choose to login via email OTP or 2FA mobile authenticator application. Additionally, I have implemented google recaptcha, added validation to all inputs and a forget password function.
+1. Login Page - Additional Feature: Users can choose to login via email OTP or 2FA mobile authenticator application. Additionally, I have implemented google recaptcha, added validation to all inputs and a forget password function. 
 
 ![appdev(login)](https://user-images.githubusercontent.com/77826239/130345049-e240debd-1006-4b6b-a880-bde79b436546.png)
 ![appdev(forgetpw)](https://user-images.githubusercontent.com/77826239/130345137-42fc778f-fef3-4ead-89ce-40239d564f33.png)
