@@ -1,6 +1,5 @@
-from wtforms import StringField, validators, SelectField
+from wtforms import StringField, validators, SelectField,DateField
 from flask_wtf import FlaskForm
-from wtforms.fields.html5 import DateField
 # from wtforms.fields.html5 import TimeField
 
 class CreateUserFormBooking(FlaskForm):

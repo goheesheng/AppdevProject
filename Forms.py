@@ -1,6 +1,6 @@
 from wtforms import Form, StringField, SelectField, TextAreaField, validators, PasswordField, BooleanField
 from wtforms_validators import AlphaSpace, AlphaNumeric, Integer
-from flask_wtf import RecaptchaField
+# from flask_wtf import RecaptchaField
 
 
 
@@ -19,5 +19,4 @@ class CreateUserForm(Form):
     address_2 = TextAreaField('Address (Second) (Optional)', [validators.Optional()],render_kw={"placeholder": "#08-1899"})
     postal_code = StringField('Postal Code', [validators.Length(min=6, max=6), validators.DataRequired(),Integer()], render_kw={"placeholder": "889906"})
     receive_emails = BooleanField("I want to receive Angel's Email")
-    recaptcha = RecaptchaField()
 
